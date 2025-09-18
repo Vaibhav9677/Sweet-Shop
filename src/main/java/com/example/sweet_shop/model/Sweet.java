@@ -1,16 +1,23 @@
 package com.example.sweetshop.model;
 
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Document(collection = "sweets") // MongoDB collection name
 public class Sweet {
     @Id
-    private String id;
-    private String name;
-    private double price;
+private String id;          // Unique ID for MongoDB
+    private String name;        // Name of the sweet
+    private String category;    // Category (e.g., Indian, Chocolate, etc.)
+    private double price;       // Price per unit
     private int quantity;
-    private String category;
 
     // --- Getters & Setters ---
     public String getId() { return id; }
