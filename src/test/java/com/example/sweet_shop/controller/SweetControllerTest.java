@@ -59,4 +59,23 @@ public class SweetControllerTest {
                 .andExpect(jsonPath("$.id").value("1"))
                 .andExpect(jsonPath("$.name").value("Ladoo"));
     }
+
+@Test
+        public void testSearchSweetsByName() throws Exception {
+        Sweet sweet = new Sweet("1", "Kaju Katli", "Indian", 120.0, 50);
+        List<Sweet> list = Arrays.asList(sweet);
+
+    // Mock service response for name search
+        Mockito.when(sweetService.searchByName("Kaju")).thenReturn(list);
+
+        mockMvc.perform(get("/api/sweets/search")
+                    .param("name", "Kaju")
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[0].name").value("Kaju Katli"))
+            .andExpect(jsonPath("$[0].category").value("Indian"))
+            .andExpect(jsonPath("$[0].price").value(120.0))
+            .andExpect(jsonPath("$[0].quantity").value(50));
+        }
+
 }

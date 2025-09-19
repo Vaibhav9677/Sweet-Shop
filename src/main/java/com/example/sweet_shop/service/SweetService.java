@@ -73,4 +73,18 @@ public class SweetService {
         return sweetRepository.save(sweet);
     }
 
+    public List<Sweet> searchSweets(String name, String category, Double minPrice, Double maxPrice) {
+        if (name != null && category != null) {
+            return sweetRepository.findByNameContainingIgnoreCaseAndCategoryIgnoreCase(name, category);
+        } else if (name != null) {
+            return sweetRepository.findByNameContainingIgnoreCase(name);
+        } else if (category != null) {
+            return sweetRepository.findByCategoryIgnoreCase(category);
+        } else if (minPrice != null && maxPrice != null) {
+            return sweetRepository.findByPriceBetween(minPrice, maxPrice);
+        } else {
+            return sweetRepository.findAll();
+        }
+    }
+
 }

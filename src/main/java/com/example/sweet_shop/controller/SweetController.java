@@ -60,14 +60,22 @@ public class SweetController {
     @GetMapping("/search")
     public ResponseEntity<List<Sweet>> searchSweets(
             @RequestParam(required = false) String name,
+            @RequestParam(required = false) String category,
             @RequestParam(required = false) Double minPrice,
             @RequestParam(required = false) Double maxPrice) {
-
-        if (name != null) {
+            
+        if((name != null) && (category != null) && (minPrice != null) && (maxPrice != null))
+        {
+            return ResponseEntity.ok(sweetService.searchSweets(name, category, minPrice, maxPrice));
+        }
+        else if (name != null) {
             return ResponseEntity.ok(sweetService.searchByName(name));
         } else if (minPrice != null && maxPrice != null) {
             return ResponseEntity.ok(sweetService.searchByPriceRange(minPrice, maxPrice));
-        } else {
+        } 
+        else if (category != null) {
+            return ResponseEntity.ok(sweetService.searchByCategory(category));
+        }else {
             return ResponseEntity.badRequest().build();
         }
     }
