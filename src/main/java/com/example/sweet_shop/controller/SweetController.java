@@ -80,8 +80,8 @@ public class SweetController {
         }
     }
 
-    @PostMapping("/{id}/purchase")
-    public Sweet purchaseSweet(@PathVariable String id) {
-    return sweetService.purchaseSweet(id);
+    @PostMapping("/{id}/purchase/{qunt}")
+    public Sweet purchaseSweet(@PathVariable String id,@PathVariable int qunt) {
+    return sweetService.purchaseSweet(id,qunt);
     }
 }

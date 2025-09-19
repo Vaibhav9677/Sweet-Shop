@@ -61,7 +61,7 @@ public class SweetService {
     return sweetRepository.findByCategory(category);
     }
 
-    public Sweet purchaseSweet(String id) {
+    public Sweet purchaseSweet(String id,int qunt) {
         Sweet sweet = sweetRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Sweet not found"));
 
@@ -69,7 +69,7 @@ public class SweetService {
             throw new RuntimeException("Sweet out of stock");
         }
 
-        sweet.setQuantity(sweet.getQuantity() - 1);
+        sweet.setQuantity(sweet.getQuantity() - qunt);
         return sweetRepository.save(sweet);
     }
 

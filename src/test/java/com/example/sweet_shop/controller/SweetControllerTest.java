@@ -98,4 +98,31 @@ public class SweetControllerTest {
                 .andExpect(jsonPath("$.quantity").value(40));
         }
 
+        @Test
+        public void testDeleteSweet() throws Exception {
+        // Arrange: mock the service delete method to do nothing
+        Mockito.doNothing().when(sweetService).deleteSweet("1");
+
+        // Act & Assert
+        mockMvc.perform(delete("/api/sweets/1"))
+                .andExpect(status().isNoContent());
+        }
+
+        @Test
+        public void testPurchaseSweet() throws Exception {
+        // Arrange
+        Sweet sweetBefore = new Sweet("1", "Kaju Katli", "Indian", 120.0, 50);
+        Sweet sweetAfter = new Sweet("1", "Kaju Katli", "Indian", 120.0, 48); // after purchase (reduced by 1)
+
+        Mockito.when(sweetService.purchaseSweet("1",2)).thenReturn(sweetAfter);
+
+        // Act & Assert
+        mockMvc.perform(post("/api/sweets/1/purchase/2"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value("1"))
+                .andExpect(jsonPath("$.name").value("Kaju Katli"))
+                .andExpect(jsonPath("$.category").value("Indian"))
+                .andExpect(jsonPath("$.price").value(120.0))
+                .andExpect(jsonPath("$.quantity").value(48)); // Ensure reduced by 1
+        }
 }
