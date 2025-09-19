@@ -80,8 +80,17 @@ public class SweetController {
         }
     }
 
-    @PostMapping("/{id}/purchase/{qunt}")
-    public Sweet purchaseSweet(@PathVariable String id,@PathVariable int qunt) {
+    @PostMapping("/{id}/purchase")
+    public Sweet purchaseSweet(@PathVariable String id, @RequestParam int qunt) {
     return sweetService.purchaseSweet(id,qunt);
     }
+
+    @PostMapping("/{id}/restock")
+    public ResponseEntity<Sweet> restockSweet(
+        @PathVariable String id,
+        @RequestParam int quantity) {
+    Sweet updatedSweet = sweetService.restockSweet(id, quantity);
+    return ResponseEntity.ok(updatedSweet);
+}
+
 }

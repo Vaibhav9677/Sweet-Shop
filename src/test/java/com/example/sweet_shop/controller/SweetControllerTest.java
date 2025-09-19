@@ -112,17 +112,36 @@ public class SweetControllerTest {
         public void testPurchaseSweet() throws Exception {
         // Arrange
         Sweet sweetBefore = new Sweet("1", "Kaju Katli", "Indian", 120.0, 50);
-        Sweet sweetAfter = new Sweet("1", "Kaju Katli", "Indian", 120.0, 48); // after purchase (reduced by 1)
+        Sweet sweetAfter = new Sweet("1", "Kaju Katli", "Indian", 120.0, 45); // after purchase (reduced by 1)
 
-        Mockito.when(sweetService.purchaseSweet("1",2)).thenReturn(sweetAfter);
+        Mockito.when(sweetService.purchaseSweet("1",5)).thenReturn(sweetAfter);
 
         // Act & Assert
-        mockMvc.perform(post("/api/sweets/1/purchase/2"))
+        mockMvc.perform(post("/api/sweets/1/purchase")
+                .param("qunt", "5"))// query param
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value("1"))
                 .andExpect(jsonPath("$.name").value("Kaju Katli"))
                 .andExpect(jsonPath("$.category").value("Indian"))
                 .andExpect(jsonPath("$.price").value(120.0))
-                .andExpect(jsonPath("$.quantity").value(48)); // Ensure reduced by 1
+                .andExpect(jsonPath("$.quantity").value(45)); // Ensure reduced by 1
         }
+
+        @Test
+        public void testRestockSweet() throws Exception {
+        Sweet sweetBefore = new Sweet("1", "Kaju Katli", "Indian", 120.0, 10);
+        Sweet sweetAfter = new Sweet("1", "Kaju Katli", "Indian", 120.0, 20); // after restock
+
+        Mockito.when(sweetService.restockSweet("1", 10)).thenReturn(sweetAfter);
+
+        mockMvc.perform(post("/api/sweets/1/restock")
+                .param("quantity", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value("1"))
+                .andExpect(jsonPath("$.name").value("Kaju Katli"))
+                .andExpect(jsonPath("$.category").value("Indian"))
+                .andExpect(jsonPath("$.price").value(120.0))
+                .andExpect(jsonPath("$.quantity").value(20));
+        }
+
 }

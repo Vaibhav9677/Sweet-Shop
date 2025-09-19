@@ -87,4 +87,13 @@ public class SweetService {
         }
     }
 
+    public Sweet restockSweet(String id, int quantity) {
+    Sweet sweet = sweetRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Sweet not found"));
+
+    sweet.setQuantity(sweet.getQuantity() + quantity);
+    return sweetRepository.save(sweet);
+}
+
+
 }
