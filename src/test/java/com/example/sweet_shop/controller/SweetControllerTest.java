@@ -60,7 +60,7 @@ public class SweetControllerTest {
                 .andExpect(jsonPath("$.name").value("Ladoo"));
     }
 
-@Test
+        @Test
         public void testSearchSweetsByName() throws Exception {
         Sweet sweet = new Sweet("1", "Kaju Katli", "Indian", 120.0, 50);
         List<Sweet> list = Arrays.asList(sweet);
@@ -76,6 +76,26 @@ public class SweetControllerTest {
             .andExpect(jsonPath("$[0].category").value("Indian"))
             .andExpect(jsonPath("$[0].price").value(120.0))
             .andExpect(jsonPath("$[0].quantity").value(50));
+        }
+        @Test
+        public void testUpdateSweet() throws Exception {
+        // Arrange
+        Sweet existingSweet = new Sweet("1", "Kaju Katli", "Indian", 120.0, 50);
+        Sweet updatedSweet = new Sweet("1", "Kaju Roll", "Indian", 150.0, 40);
+
+        Mockito.when(sweetService.updateSweet(Mockito.eq("1"), Mockito.any(Sweet.class)))
+                .thenReturn(updatedSweet);
+
+        // Act & Assert
+        mockMvc.perform(put("/api/sweets/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"name\":\"Kaju Roll\",\"category\":\"Indian\",\"price\":150.0,\"quantity\":40}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value("1"))
+                .andExpect(jsonPath("$.name").value("Kaju Roll"))
+                .andExpect(jsonPath("$.category").value("Indian"))
+                .andExpect(jsonPath("$.price").value(150.0))
+                .andExpect(jsonPath("$.quantity").value(40));
         }
 
 }
