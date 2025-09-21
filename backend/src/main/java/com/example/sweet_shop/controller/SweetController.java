@@ -1,6 +1,7 @@
 package com.example.sweetshop.controller;
 
 import com.example.sweetshop.model.Sweet;
+import org.springframework.security.access.prepost.PreAuthorize;
 import com.example.sweetshop.service.SweetService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,18 +20,21 @@ public class SweetController {
 
     // POST /api/sweets → add new sweet
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Sweet> addSweet(@RequestBody Sweet sweet) {
-        return ResponseEntity.ok(sweetService.addSweet(sweet));
+        return sweetService.addSweet(sweet);
     }
 
     // GET /api/sweets → list all
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN','CUSTOMER')")
     public ResponseEntity<List<Sweet>> getAllSweets() {
         return ResponseEntity.ok(sweetService.getAllSweets());
     }
 
     // GET /api/sweets/{id} → get by id
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','CUSTOMER')")
     public ResponseEntity<Sweet> getSweetById(@PathVariable String id) {
         return sweetService.getSweetById(id)
                 .map(ResponseEntity::ok)
@@ -39,12 +43,14 @@ public class SweetController {
 
     // PUT /api/sweets/{id} → update
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Sweet> updateSweet(@PathVariable String id, @RequestBody Sweet sweet) {
         return ResponseEntity.ok(sweetService.updateSweet(id, sweet));
     }
 
     // DELETE /api/sweets/{id} → delete
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteSweet(@PathVariable String id) {
         sweetService.deleteSweet(id);
         return ResponseEntity.noContent().build();
@@ -52,12 +58,15 @@ public class SweetController {
 
     // GET /api/sweets/category/{category}
     @GetMapping("/category/{category}")
+    @PreAuthorize("hasAnyRole('ADMIN','CUSTOMER')")
     public ResponseEntity<List<Sweet>> getSweetsByCategory(@PathVariable String category) {
     return ResponseEntity.ok(sweetService.searchByCategory(category));
     }
 
     // GET /api/sweets/search?name=lado&minPrice=10&maxPrice=50
+    
     @GetMapping("/search")
+    @PreAuthorize("hasAnyRole('ADMIN','CUSTOMER')")
     public ResponseEntity<List<Sweet>> searchSweets(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String category,
@@ -81,11 +90,13 @@ public class SweetController {
     }
 
     @PostMapping("/{id}/purchase")
-    public Sweet purchaseSweet(@PathVariable String id, @RequestParam int qunt) {
-    return sweetService.purchaseSweet(id,qunt);
+    @PreAuthorize("hasRole('CUSTOMER')")
+    public Sweet purchaseSweet(@PathVariable String id, @RequestParam int quantity) {
+    return sweetService.purchaseSweet(id,quantity);
     }
 
     @PostMapping("/{id}/restock")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Sweet> restockSweet(
         @PathVariable String id,
         @RequestParam int quantity) {

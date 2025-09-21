@@ -2,6 +2,8 @@ package com.example.sweetshop.controller;
 
 import com.example.sweetshop.model.Sweet;
 import com.example.sweetshop.service.SweetService;
+import com.example.sweetshop.auth.service.JwtService;
+import com.example.sweetshop.auth.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -11,6 +13,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.http.ResponseEntity;
+
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -32,6 +36,12 @@ public class SweetControllerTest {
 
     @MockBean
     private SweetService sweetService;
+    
+    @MockBean
+    private JwtService jwtService;
+
+    @MockBean
+    private UserService userService;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -45,12 +55,15 @@ public class SweetControllerTest {
                .andExpect(content().json("[]"));
     }
 
-    @Test
-    public void testAddSweet() throws Exception {
-        Sweet sweet = new Sweet("1", "Ladoo", "Indian", 50.0, 100); // double
-        Sweet savedSweet = new Sweet("1", "Ladoo", "Indian", 50, 100);
+        @Test
+        public void testAddSweet_Success() throws Exception {
+        Sweet sweet = new Sweet("1", "Ladoo", "Indian", 50.0, 100);
+        Sweet savedSweet = new Sweet("1", "Ladoo", "Indian", 50.0, 100);
 
-        Mockito.when(sweetService.addSweet(any(Sweet.class))).thenReturn(savedSweet);
+        // Mock service to return the sweet as if it was saved
+        Mockito.when(sweetService.addSweet(any(Sweet.class))).thenReturn(
+                ResponseEntity.ok(savedSweet)
+        );
 
         mockMvc.perform(post("/api/sweets")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -58,7 +71,25 @@ public class SweetControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value("1"))
                 .andExpect(jsonPath("$.name").value("Ladoo"));
-    }
+        }
+
+        @Test
+        public void testAddSweet_AlreadyExists() throws Exception {
+        Sweet sweet = new Sweet("1", "Ladoo", "Indian", 50.0, 100);
+
+        // Mock service to return bad request with existing sweet
+        Mockito.when(sweetService.addSweet(any(Sweet.class))).thenReturn(
+                ResponseEntity.badRequest().body(sweet)
+        );
+
+        mockMvc.perform(post("/api/sweets")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(sweet)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.id").value("1"))
+                .andExpect(jsonPath("$.name").value("Ladoo"));
+        }
+
 
         @Test
         public void testSearchSweetsByName() throws Exception {
@@ -118,7 +149,7 @@ public class SweetControllerTest {
 
         // Act & Assert
         mockMvc.perform(post("/api/sweets/1/purchase")
-                .param("qunt", "5"))// query param
+                .param("quantity", "5"))// query param
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value("1"))
                 .andExpect(jsonPath("$.name").value("Kaju Katli"))
